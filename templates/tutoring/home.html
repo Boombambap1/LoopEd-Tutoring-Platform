@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+
+{% block title %}LoopEd - Find Your Perfect Tutor{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h1 class="display-3 fw-bold mb-4">
+                    Find Your Perfect <span class="text-warning">Tutor</span>
+                </h1>
+                <p class="lead mb-5">
+                    Connect with qualified high school tutors who will help you excel in your studies
+                </p>
+                <div class="search-box bg-white p-4 rounded-4 shadow-lg">
+                    <form method="GET" action="{% url 'tutor_search' %}" class="row g-3">
+                        <div class="col-md-5">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-book text-primary"></i>
+                                </span>
+                                <input type="text" name="subject" class="form-control border-0 bg-light" 
+                                       placeholder="What subject do you need help with?">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0">
+                                    <i class="fas fa-map-marker-alt text-primary"></i>
+                                </span>
+                                <input type="text" name="location" class="form-control border-0 bg-light" 
+                                       placeholder="Your location">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-gradient btn-lg w-100 shadow">
+                                <i class="fas fa-search me-2"></i>Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 mb-4">
+                <div class="stats-card p-4 h-100">
+                    <i class="fas fa-users fa-3x mb-3"></i>
+                    <h3 class="fw-bold">500+</h3>
+                    <p class="mb-0">Qualified Tutors</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stats-card p-4 h-100">
+                    <i class="fas fa-graduation-cap fa-3x mb-3"></i>
+                    <h3 class="fw-bold">1000+</h3>
+                    <p class="mb-0">Students Helped</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stats-card p-4 h-100">
+                    <i class="fas fa-clock fa-3x mb-3"></i>
+                    <h3 class="fw-bold">10,000+</h3>
+                    <p class="mb-0">Hours Tutored</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stats-card p-4 h-100">
+                    <i class="fas fa-star fa-3x mb-3"></i>
+                    <h3 class="fw-bold">4.9</h3>
+                    <p class="mb-0">Average Rating</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Subjects -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Popular Subjects</h2>
+            <p class="lead text-muted">Choose from our most requested tutoring subjects</p>
+        </div>
+        <div class="row">
+            {% for subject in subjects %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="subject-card card h-100 p-4 text-center">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            {% if subject.name == "Mathematics" %}
+                                <i class="fas fa-calculator fa-3x text-primary"></i>
+                            {% elif subject.name == "Science" %}
+                                <i class="fas fa-flask fa-3x text-success"></i>
+                            {% elif subject.name == "English" %}
+                                <i class="fas fa-feather fa-3x text-danger"></i>
+                            {% elif subject.name == "History" %}
+                                <i class="fas fa-landmark fa-3x text-warning"></i>
+                            {% else %}
+                                <i class="fas fa-book fa-3x text-info"></i>
+                            {% endif %}
+                        </div>
+                        <h5 class="card-title fw-bold">{{ subject.name }}</h5>
+                        <p class="card-text text-muted">{{ subject.description|default:"Expert tutoring available" }}</p>
+                        <a href="{% url 'tutor_search' %}?subject={{ subject.id }}" 
+                           class="btn btn-outline-primary rounded-pill">
+                            Find Tutors <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">No subjects available yet. Please check back soon!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Tutors -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Featured Tutors</h2>
+            <p class="lead text-muted">Meet some of our top-rated tutoring professionals</p>
+        </div>
+        <div class="row">
+            {% for tutor in featured_tutors %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="tutor-card card h-100">
+                    <div class="card-body text-center p-4">
+                        {% if tutor.user.profile_picture %}
+                            <img src="{{ tutor.user.profile_picture.url }}" 
+                                 class="rounded-circle mb-3 shadow" width="100" height="100"
+                                 style="object-fit: cover;">
+                        {% else %}
+                            <div class="rounded-circle bg-gradient-primary text-white d-inline-flex align-items-center justify-content-center mb-3 shadow" 
+                                 style="width: 100px; height: 100px; font-size: 2rem; background: linear-gradient(45deg, #667eea, #764ba2);">
+                                {{ tutor.user.first_name.0 }}{{ tutor.user.last_name.0 }}
+                            </div>
+                        {% endif %}
+                        <h5 class="card-title fw-bold">{{ tutor.user.get_full_name }}</h5>
+                        <p class="text-muted mb-2">
+                            <i class="fas fa-award me-1"></i>{{ tutor.experience_years }} years experience
+                        </p>
+                        <div class="rating-stars mb-3">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= tutor.rating|floatformat:0 %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <small class="text-muted ms-1">({{ tutor.total_reviews }} reviews)</small>
+                        </div>
+                        <p class="card-text">{{ tutor.user.bio|truncatewords:15 }}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <div>
+                                <strong class="text-success h5">${{ tutor.hourly_rate }}/hour</strong>
+                            </div>
+                            <a href="{% url 'tutor_detail' tutor.id %}" 
+                               class="btn btn-primary rounded-pill">
+                                View Profile <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <div class="card border-0 bg-light">
+                    <div class="card-body py-5">
+                        <i class="fas fa-users fa-4x text-muted mb-3"></i>
+                        <h4>No featured tutors available</h4>
+                        <p class="text-muted">Check back soon for our amazing tutors!</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% if featured_tutors %}
+        <div class="text-center mt-5">
+            <a href="{% url 'tutor_search' %}" class="btn btn-gradient btn-lg rounded-pill px-5">
+                View All Tutors <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">How It Works</h2>
+            <p class="lead text-muted">Get started with tutoring in three simple steps</p>
+        </div>
+        <div class="row">
+            <div class="col-md-4 text-center mb-4">
+                <div class="position-relative">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-4" 
+                         style="width: 80px; height: 80px; font-size: 2rem;">
+                        1
+                    </div>
+                </div>
+                <h4 class="fw-bold">Search & Browse</h4>
+                <p class="text-muted">Find tutors based on subject, location, and price range</p>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="position-relative">
+                    <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center mb-4" 
+                         style="width: 80px; height: 80px; font-size: 2rem;">
+                        2
+                    </div>
+                </div>
+                <h4 class="fw-bold">Connect & Book</h4>
+                <p class="text-muted">Message tutors and schedule your first session</p>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="position-relative">
+                    <div class="rounded-circle bg-warning text-white d-inline-flex align-items-center justify-content-center mb-4" 
+                         style="width: 80px; height: 80px; font-size: 2rem;">
+                        3
+                    </div>
+                </div>
+                <h4 class="fw-bold">Learn & Succeed</h4>
+                <p class="text-muted">Meet with your tutor and achieve your academic goals</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

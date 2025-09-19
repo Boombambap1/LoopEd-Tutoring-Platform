@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if is_own_profile %}Your Tutor Profile{% else %}{{ profile_user.get_full_name }} - Tutor{% endif %} - TutorHub
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Tutor Profile Sidebar -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center p-4">
+                    <!-- Profile Picture -->
+                    {% if profile_user.profile_picture %}
+                        <img src="{{ profile_user.profile_picture.url }}" 
+                             class="rounded-circle mb-3 shadow" width="150" height="150"
+                             style="object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-gradient-primary text-white d-inline-flex align-items-center justify-content-center mb-3 shadow" 
+                             style="width: 150px; height: 150px; font-size: 3rem; background: linear-gradient(45deg, #667eea, #764ba2);">
+                            {{ profile_user.first_name.0 }}{{ profile_user.last_name.0 }}
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Basic Info -->
+                    <h3 class="fw-bold mb-1">{{ profile_user.get_full_name }}</h3>
+                    <p class="text-muted mb-2">
+                        <i class="fas fa-chalkboard-teacher me-1"></i>Professional Tutor
+                        {% if profile_user.get_age %}
+                            • {{ profile_user.get_age }} years old
+                        {% endif %}
+                    </p>
+                    
+                    {% if profile_user.location %}
+                        <p class="text-muted mb-2">
+                            <i class="fas fa-map-marker-alt me-1"></i>{{ profile_user.location }}
+                        </p>
+                    {% endif %}
+                    
+                    <!-- Tutor Stats -->
+                    {% if tutor_profile %}
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <div class="bg-success bg-opacity-10 p-2 rounded">
+                                    <h5 class="text-success fw-bold mb-0">${{ tutor_profile.hourly_rate }}</h5>
+                                    <small class="text-muted">Per Hour</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="bg-warning bg-opacity-10 p-2 rounded">
+                                    <h5 class="text-warning fw-bold mb-0">{{ tutor_profile.rating }}/5.0</h5>
+                                    <small class="text-muted">Rating</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <div class="bg-primary bg-opacity-10 p-2 rounded">
+                                    <h5 class="text-primary fw-bold mb-0">{{ tutor_profile.experience_years }}</h5>
+                                    <small class="text-muted">Years Exp.</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="bg-info bg-opacity-10 p-2 rounded">
+                                    <h5 class="text-info fw-bold mb-0">{{ tutor_profile.total_reviews }}</h5>
+                                    <small class="text-muted">Reviews</small>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Social Links -->
+                    {% if profile_user.social_linkedin or profile_user.social_instagram %}
+                        <div class="social-links mb-3">
+                            {% if profile_user.social_linkedin %}
+                                <a href="{{ profile_user.social_linkedin }}" target="_blank" class="btn btn-outline-primary btn-sm me-2">
+                                    <i class="fab fa-linkedin me-1"></i>LinkedIn
+                                </a>
+                            {% endif %}
+                            {% if profile_user.social_instagram %}
+                                <a href="https://instagram.com/{{ profile_user.social_instagram }}" target="_blank" class="btn btn-outline-danger btn-sm">
+                                    <i class="fab fa-instagram me-1"></i>Instagram
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Action Buttons -->
+                    {% if is_own_profile %}
+                        <a href="{% url 'edit_profile' %}" class="btn btn-primary w-100 mb-2">
+                            <i class="fas fa-edit me-2"></i>Edit Profile
+                        </a>
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                    {% else %}
+                        <!-- Book Session Button -->
+                        {% if user.is_authenticated and user.user_type == 'student' %}
+                            <a href="{% url 'book_session' tutor_profile.id %}" class="btn btn-primary w-100 mb-2">
+                                <i class="fas fa-calendar-plus me-2"></i>Book Session
+                            </a>
+                        {% endif %}
+                        
+                        <!-- Send Message Button - FIXED VERSION -->
+                        {% if user.is_authenticated %}
+                            {% if user != profile_user %}
+                                <a href="{% url 'messaging:inbox' %}" class="btn btn-outline-primary w-100 mb-3">
+                                    <i class="fas fa-envelope me-2"></i>Send Message
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-outline-primary w-100 mb-3">
+                                <i class="fas fa-envelope me-2"></i>Send Message
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Verification Status -->
+            {% if tutor_profile %}
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Verification Status</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if tutor_profile.is_verified %}
+                            <div class="text-success">
+                                <i class="fas fa-check-circle me-2"></i>Verified Tutor
+                            </div>
+                        {% else %}
+                            <div class="text-warning">
+                                <i class="fas fa-clock me-2"></i>Verification Pending
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Tutor Details -->
+        <div class="col-lg-8">
+            <!-- About Section -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>About {{ profile_user.first_name }}</h5>
+                </div>
+                <div class="card-body">
+                    {% if profile_user.bio %}
+                        <p class="mb-3">{{ profile_user.bio|linebreaks }}</p>
+                    {% else %}
+                        <p class="text-muted mb-3">No bio available yet.</p>
+                    {% endif %}
+                    
+                    {% if profile_user.interests %}
+                        <div class="mb-3">
+                            <h6><i class="fas fa-heart me-2"></i>Interests & Hobbies</h6>
+                            <p class="text-muted">{{ profile_user.interests }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Teaching Information -->
+            {% if tutor_profile %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-chalkboard-teacher me-2"></i>Teaching Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-star me-2"></i>Experience Level</h6>
+                                <p class="text-muted">{{ tutor_profile.get_experience_level_display|default:"Not specified" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-palette me-2"></i>Teaching Style</h6>
+                                <p class="text-muted">{{ tutor_profile.get_teaching_style_display|default:"Not specified" }}</p>
+                            </div>
+                        </div>
+                        
+                        {% if tutor_profile.education %}
+                            <div class="mb-3">
+                                <h6><i class="fas fa-graduation-cap me-2"></i>Education</h6>
+                                <p class="text-muted">{{ tutor_profile.education }}</p>
+                            </div>
+                        {% endif %}
+                        
+                        {% if tutor_profile.certifications %}
+                            <div class="mb-3">
+                                <h6><i class="fas fa-certificate me-2"></i>Certifications</h6>
+                                <p class="text-muted">{{ tutor_profile.certifications|linebreaks }}</p>
+                            </div>
+                        {% endif %}
+                        
+                        {% if tutor_profile.specializations %}
+                            <div class="mb-3">
+                                <h6><i class="fas fa-trophy me-2"></i>Specializations</h6>
+                                <p class="text-muted">{{ tutor_profile.specializations|linebreaks }}</p>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <h6><i class="fas fa-language me-2"></i>Languages</h6>
+                            <p class="text-muted">{{ tutor_profile.languages_spoken|default:"English" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Teaching Philosophy -->
+                {% if tutor_profile.teaching_philosophy %}
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Teaching Philosophy</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">{{ tutor_profile.teaching_philosophy|linebreaks }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Subjects -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-book me-2"></i>Teaching Subjects</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if tutor_profile.subjects.all %}
+                            <div class="row">
+                                {% for subject in tutor_profile.subjects.all %}
+                                    <div class="col-md-4 mb-2">
+                                        <span class="badge bg-primary p-2 w-100">
+                                            <i class="fas fa-check me-1"></i>{{ subject.name }}
+                                        </span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No subjects listed yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Session Preferences -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Session Preferences</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <h6><i class="fas fa-laptop me-2"></i>Online Sessions</h6>
+                                <p class="text-muted">
+                                    {% if tutor_profile.prefers_online %}
+                                        <i class="fas fa-check text-success"></i> Available
+                                    {% else %}
+                                        <i class="fas fa-times text-danger"></i> Not available
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <h6><i class="fas fa-home me-2"></i>In-Person Sessions</h6>
+                                <p class="text-muted">
+                                    {% if tutor_profile.prefers_in_person %}
+                                        <i class="fas fa-check text-success"></i> Available
+                                        {% if tutor_profile.travel_distance > 0 %}
+                                            (within {{ tutor_profile.travel_distance }}km)
+                                        {% endif %}
+                                    {% else %}
+                                        <i class="fas fa-times text-danger"></i> Not available
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        {% if tutor_profile.availability %}
+                            <div class="mb-3">
+                                <h6><i class="fas fa-clock me-2"></i>Availability</h6>
+                                <div class="bg-light p-3 rounded">
+                                    <p class="mb-0">{{ tutor_profile.availability|linebreaks }}</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

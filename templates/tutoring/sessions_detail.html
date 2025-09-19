@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Session Details - LoopEd{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>Session Details
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">
+                                {% if user.user_type == 'student' %}Tutor{% else %}Student{% endif %}
+                            </h6>
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 50px; height: 50px;">
+                                    {% if user.user_type == 'student' %}
+                                        {{ session.tutor.first_name.0 }}{{ session.tutor.last_name.0 }}
+                                    {% else %}
+                                        {{ session.student.first_name.0 }}{{ session.student.last_name.0 }}
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">
+                                        {% if user.user_type == 'student' %}
+                                            {{ session.tutor.get_full_name }}
+                                        {% else %}
+                                            {{ session.student.get_full_name }}
+                                        {% endif %}
+                                    </h5>
+                                    <small class="text-muted">
+                                        {% if user.user_type == 'student' %}
+                                            {{ session.tutor.email }}
+                                        {% else %}
+                                            {{ session.student.email }}
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <span class="badge fs-6 px-3 py-2
+                                {% if session.status == 'confirmed' %}bg-success
+                                {% elif session.status == 'pending' %}bg-warning
+                                {% elif session.status == 'completed' %}bg-primary
+                                {% else %}bg-secondary{% endif %}">
+                                {{ session.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted"><i class="fas fa-book me-2"></i>Subject</h6>
+                            <p class="mb-0">{{ session.subject.name }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted"><i class="fas fa-clock me-2"></i>Duration</h6>
+                            <p class="mb-0">{{ session.duration_hours }} hours</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted"><i class="fas fa-calendar me-2"></i>Date & Time</h6>
+                            <p class="mb-0">{{ session.date_time|date:"l, F d, Y" }}</p>
+                            <p class="mb-0">{{ session.date_time|date:"g:i A" }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted"><i class="fas fa-dollar-sign me-2"></i>Cost</h6>
+                            {% if user.user_type == 'student' %}
+                                <p class="mb-0 text-success fw-bold">
+                                    ${{ session.tutor.tutorprofile.hourly_rate|floatformat:2 }} × {{ session.duration_hours }} = 
+                                    ${% widthratio session.tutor.tutorprofile.hourly_rate 1 session.duration_hours %}
+                                </p>
+                            {% else %}
+                                <p class="mb-0 text-success fw-bold">
+                                    ${{ user.tutorprofile.hourly_rate|floatformat:2 }} × {{ session.duration_hours }} = 
+                                    ${% widthratio user.tutorprofile.hourly_rate 1 session.duration_hours %}
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if session.notes %}
+                        <div class="mb-4">
+                            <h6 class="text-muted"><i class="fas fa-sticky-note me-2"></i>Notes</h6>
+                            <div class="bg-light p-3 rounded">
+                                <p class="mb-0">{{ session.notes }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-4">
+                        <h6 class="text-muted"><i class="fas fa-info-circle me-2"></i>Booking Information</h6>
+                        <small class="text-muted">
+                            Booked on {{ session.created_at|date:"M d, Y \a\t g:i A" }}
+                        </small>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                        </a>
+                        
+                        <div>
+                            {% if user.user_type == 'tutor' %}
+                                {% if session.status == 'pending' %}
+                                    <a href="{% url 'session_action' session.id 'accept' %}" class="btn btn-success me-2">
+                                        <i class="fas fa-check me-1"></i>Accept Session
+                                    </a>
+                                    <a href="{% url 'session_action' session.id 'reject' %}" class="btn btn-danger">
+                                        <i class="fas fa-times me-1"></i>Decline Session
+                                    </a>
+                                {% elif session.status == 'confirmed' %}
+                                    <a href="{% url 'session_action' session.id 'complete' %}" class="btn btn-info me-2">
+                                        <i class="fas fa-check-circle me-1"></i>Mark Complete
+                                    </a>
+                                    <a href="{% url 'session_action' session.id 'cancel' %}" class="btn btn-outline-warning">
+                                        <i class="fas fa-ban me-1"></i>Cancel
+                                    </a>
+                                {% endif %}
+                            {% else %}
+                                {% if session.status in 'pending,confirmed' %}
+                                    <a href="{% url 'session_action' session.id 'cancel' %}" class="btn btn-outline-danger">
+                                        <i class="fas fa-times me-1"></i>Cancel Session
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

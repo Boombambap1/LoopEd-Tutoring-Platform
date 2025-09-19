@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ tutor.user.get_full_name }} - LoopEd{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Tutor Profile Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-body text-center p-4">
+                    {% if tutor.user.profile_picture %}
+                        <img src="{{ tutor.user.profile_picture.url }}" 
+                             class="rounded-circle mb-3 shadow" width="150" height="150"
+                             style="object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-gradient-primary text-white d-inline-flex align-items-center justify-content-center mb-3 shadow" 
+                             style="width: 150px; height: 150px; font-size: 3rem; background: linear-gradient(45deg, #667eea, #764ba2);">
+                            {{ tutor.user.first_name.0 }}{{ tutor.user.last_name.0 }}
+                        </div>
+                    {% endif %}
+                    
+                    <h3 class="fw-bold mb-1">{{ tutor.user.get_full_name }}</h3>
+                    {% if tutor.is_verified %}
+                        <span class="badge bg-success mb-2">
+                            <i class="fas fa-check-circle me-1"></i>Verified Tutor
+                        </span>
+                    {% endif %}
+                    
+                    <div class="rating-stars mb-3">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= tutor.rating|floatformat:0 %}
+                                <i class="fas fa-star"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                        <div class="mt-1">
+                            <strong>{{ tutor.rating }}/5.0</strong>
+                            <small class="text-muted">({{ tutor.total_reviews }} reviews)</small>
+                        </div>
+                    </div>
+
+                    <div class="price-info bg-light p-3 rounded mb-4">
+                        <h2 class="text-success mb-1">${{ tutor.hourly_rate }}/hour</h2>
+                        <small class="text-muted">Starting rate</small>
+                    </div>
+
+                    {% if user.is_authenticated and user.user_type == 'student' %}
+                        <a href="{% url 'book_session' tutor.id %}" class="btn btn-primary btn-lg w-100 mb-3">
+                            <i class="fas fa-calendar-plus me-2"></i>Book a Session
+                        </a>
+                        {% if user != tutor.user %}
+                            <a href="{% url 'messaging:start_conversation' tutor.user.id %}" class="btn btn-outline-primary w-100 mb-3">
+                                <i class="fas fa-envelope me-2"></i>Send Message
+                            </a>
+                        {% endif %}
+                    {% elif user.is_authenticated %}
+                        <!-- Logged in but not a student -->
+                        {% if user != tutor.user %}
+                            <a href="{% url 'messaging:start_conversation' tutor.user.id %}" class="btn btn-outline-primary w-100 mb-3">
+                                <i class="fas fa-envelope me-2"></i>Send Message
+                            </a>
+                        {% endif %}
+                    {% else %}
+                        <!-- Not logged in -->
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <a href="{% url 'login' %}">Login</a> to book sessions or send messages
+                        </div>
+                    {% endif %}
+
+                    <div class="tutor-stats mt-4">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <h5 class="fw-bold text-primary">{{ tutor.experience_years }}</h5>
+                                <small class="text-muted">Years</small>
+                            </div>
+                            <div class="col-4">
+                                <h5 class="fw-bold text-primary">{{ tutor.total_reviews }}</h5>
+                                <small class="text-muted">Reviews</small>
+                            </div>
+                            <div class="col-4">
+                                <h5 class="fw-bold text-primary">{{ tutor.subjects.count }}</h5>
+                                <small class="text-muted">Subjects</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tutor Details -->
+        <div class="col-lg-8">
+            <!-- About Section -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>About {{ tutor.user.first_name }}</h5>
+                </div>
+                <div class="card-body">
+                    {% if tutor.user.bio %}
+                        <p>{{ tutor.user.bio }}</p>
+                    {% else %}
+                        <p class="text-muted">No bio available yet.</p>
+                    {% endif %}
+                    
+                    {% if tutor.education %}
+                        <div class="mt-3">
+                            <h6><i class="fas fa-graduation-cap me-2"></i>Education</h6>
+                            <p class="text-muted">{{ tutor.education }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Subjects Section -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-book me-2"></i>Teaching Subjects</h5>
+                </div>
+                <div class="card-body">
+                    {% if tutor.subjects.all %}
+                        <div class="row">
+                            {% for subject in tutor.subjects.all %}
+                                <div class="col-md-6 mb-2">
+                                    <span class="badge bg-primary me-2 p-2">
+                                        <i class="fas fa-check me-1"></i>{{ subject.name }}
+                                    </span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No subjects listed yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Availability Section -->
+            {% if tutor.availability %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Availability</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ tutor.availability }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Reviews Section -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star me-2"></i>Reviews ({{ tutor.total_reviews }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if reviews %}
+                        {% for review in reviews %}
+                            <div class="review-item {% if not forloop.last %}border-bottom{% endif %} pb-3 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-shrink-0 me-3">
+                                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" 
+                                             style="width: 40px; height: 40px;">
+                                            {{ review.reviewer.first_name.0 }}{{ review.reviewer.last_name.0 }}
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <h6 class="mb-0">{{ review.reviewer.get_full_name }}</h6>
+                                            <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+                                        </div>
+                                        <div class="rating-stars mb-2">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= review.rating %}
+                                                    <i class="fas fa-star text-warning"></i>
+                                                {% else %}
+                                                    <i class="far fa-star text-warning"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <p class="mb-0">{{ review.comment }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        
+                        {% if tutor.total_reviews > 5 %}
+                            <div class="text-center">
+                                <button class="btn btn-outline-primary">
+                                    <i class="fas fa-eye me-1"></i>View All Reviews
+                                </button>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                            <h6>No reviews yet</h6>
+                            <p class="text-muted">Be the first to leave a review for this tutor!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

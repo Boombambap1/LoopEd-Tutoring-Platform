@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile - LoopEd{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-edit me-2"></i>Edit Profile
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Basic Information -->
+                        <div class="mb-4">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-user me-2"></i>Basic Information
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                        First Name <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <div class="text-danger small mt-1">{{ form.first_name.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                        Last Name <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <div class="text-danger small mt-1">{{ form.last_name.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                                        Email <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.phone.id_for_label }}" class="form-label">
+                                        Phone Number
+                                    </label>
+                                    {{ form.phone }}
+                                    {% if form.phone.errors %}
+                                        <div class="text-danger small mt-1">{{ form.phone.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.bio.id_for_label }}" class="form-label">
+                                    Bio
+                                </label>
+                                {{ form.bio }}
+                                <div class="form-text">Tell others about yourself, your interests, and your goals.</div>
+                                {% if form.bio.errors %}
+                                    <div class="text-danger small mt-1">{{ form.bio.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.profile_picture.id_for_label }}" class="form-label">
+                                    Profile Picture
+                                </label>
+                                {{ form.profile_picture }}
+                                {% if user.profile_picture %}
+                                    <div class="mt-2">
+                                        <small class="text-muted">Current picture:</small>
+                                        <img src="{{ user.profile_picture.url }}" class="rounded ms-2" width="50" height="50" style="object-fit: cover;">
+                                    </div>
+                                {% endif %}
+                                {% if form.profile_picture.errors %}
+                                    <div class="text-danger small mt-1">{{ form.profile_picture.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Location & School Information -->
+                        <div class="mb-4">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-map-marker-alt me-2"></i>Location & Education
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.location.id_for_label }}" class="form-label">
+                                        Location
+                                    </label>
+                                    {{ form.location }}
+                                    {% if form.location.errors %}
+                                        <div class="text-danger small mt-1">{{ form.location.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.grade_level.id_for_label }}" class="form-label">
+                                        Grade Level
+                                    </label>
+                                    {{ form.grade_level }}
+                                    {% if form.grade_level.errors %}
+                                        <div class="text-danger small mt-1">{{ form.grade_level.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.school.id_for_label }}" class="form-label">
+                                    School/University
+                                </label>
+                                {{ form.school }}
+                                {% if form.school.errors %}
+                                    <div class="text-danger small mt-1">{{ form.school.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Interests & Social -->
+                        <div class="mb-4">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-heart me-2"></i>Interests & Social
+                            </h5>
+                            <div class="mb-3">
+                                <label for="{{ form.interests.id_for_label }}" class="form-label">
+                                    Interests & Hobbies
+                                </label>
+                                {{ form.interests }}
+                                {% if form.interests.errors %}
+                                    <div class="text-danger small mt-1">{{ form.interests.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.social_linkedin.id_for_label }}" class="form-label">
+                                        LinkedIn Profile
+                                    </label>
+                                    {{ form.social_linkedin }}
+                                    {% if form.social_linkedin.errors %}
+                                        <div class="text-danger small mt-1">{{ form.social_linkedin.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.social_instagram.id_for_label }}" class="form-label">
+                                        Instagram Username
+                                    </label>
+                                    {{ form.social_instagram }}
+                                    {% if form.social_instagram.errors %}
+                                        <div class="text-danger small mt-1">{{ form.social_instagram.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Privacy Settings -->
+                        <div class="mb-4">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-shield-alt me-2"></i>Privacy Settings
+                            </h5>
+                            <div class="form-check">
+                                {{ form.is_profile_public }}
+                                <label class="form-check-label" for="{{ form.is_profile_public.id_for_label }}">
+                                    Make my profile public (visible to other users)
+                                </label>
+                                {% if form.is_profile_public.errors %}
+                                    <div class="text-danger small mt-1">{{ form.is_profile_public.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Tutor-Specific Fields -->
+                        {% if user.user_type == 'tutor' and tutor_form %}
+                            <div class="mb-4">
+                                <h5 class="text-success mb-3">
+                                    <i class="fas fa-chalkboard-teacher me-2"></i>Tutor Information
+                                </h5>
+                                
+                                <!-- Basic Tutor Info -->
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ tutor_form.hourly_rate.id_for_label }}" class="form-label">
+                                            Hourly Rate ($) <span class="text-danger">*</span>
+                                        </label>
+                                        {{ tutor_form.hourly_rate }}
+                                        {% if tutor_form.hourly_rate.errors %}
+                                            <div class="text-danger small mt-1">{{ tutor_form.hourly_rate.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ tutor_form.experience_years.id_for_label }}" class="form-label">
+                                            Years of Experience
+                                        </label>
+                                        {{ tutor_form.experience_years }}
+                                        {% if tutor_form.experience_years.errors %}
+                                            <div class="text-danger small mt-1">{{ tutor_form.experience_years.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="{{ tutor_form.experience_level.id_for_label }}" class="form-label">
+                                            Experience Level
+                                        </label>
+                                        {{ tutor_form.experience_level }}
+                                        {% if tutor_form.experience_level.errors %}
+                                            <div class="text-danger small mt-1">{{ tutor_form.experience_level.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ tutor_form.teaching_style.id_for_label }}" class="form-label">
+                                            Teaching Style
+                                        </label>
+                                        {{ tutor_form.teaching_style }}
+                                        {% if tutor_form.teaching_style.errors %}
+                                            <div class="text-danger small mt-1">{{ tutor_form.teaching_style.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ tutor_form.languages_spoken.id_for_label }}" class="form-label">
+                                            Languages Spoken
+                                        </label>
+                                        {{ tutor_form.languages_spoken }}
+                                        {% if tutor_form.languages_spoken.errors %}
+                                            <div class="text-danger small mt-1">{{ tutor_form.languages_spoken.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ tutor_form.education.id_for_label }}" class="form-label">
+                                        Education Background
+                                    </label>
+                                    {{ tutor_form.education }}
+                                    {% if tutor_form.education.errors %}
+                                        <div class="text-danger small mt-1">{{ tutor_form.education.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Subjects -->
+                                <div class="mb-3">
+                                    <label class="form-label">Teaching Subjects</label>
+                                    <div class="row">
+                                        {% for choice in tutor_form.subjects %}
+                                            <div class="col-md-4 col-sm-6 mb-2">
+                                                <div class="form-check">
+                                                    {{ choice.tag }}
+                                                    <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                                        {{ choice.choice_label }}
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% if tutor_form.subjects.errors %}
+                                        <div class="text-danger small mt-1">{{ tutor_form.subjects.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Detailed Information -->
+                                <div class="mb-3">
+                                    <label for="{{ tutor_form.certifications.id_for_label }}" class="form-label">
+                                        Certifications & Qualifications
+                                    </label>
+                                    {{ tutor_form.certifications }}
+                                    {% if tutor_form.certifications.errors %}
+                                        <div class="text-danger small mt-1">{{ tutor_form.certifications.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ tutor_form.specializations.id_for_label }}" class="form-label">
+                                        Specializations
+                                    </label>
+                                    {{ tutor_form.specializations }}
+                                    {% if tutor_form.specializations.errors %}
+                                        <div class="text-danger small mt-1">{{ tutor_form.specializations.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ tutor_form.teaching_philosophy.id_for_label }}" class="form-label">
+                                        Teaching Philosophy
+                                    </label>
+                                    {{ tutor_form.teaching_philosophy }}
+                                    <div class="form-text">Describe your approach to teaching and helping students learn.</div>
+                                    {% if tutor_form.teaching_philosophy.errors %}
+                                        <div class="text-danger small mt-1">{{ tutor_form.teaching_philosophy.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ tutor_form.availability.id_for_label }}" class="form-label">
+                                        Availability
+                                    </label>
+                                    {{ tutor_form.availability }}
+                                    {% if tutor_form.availability.errors %}
+                                        <div class="text-danger small mt-1">{{ tutor_form.availability.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Session Preferences -->
+                                <div class="mb-3">
+                                    <label class="form-label">Session Preferences</label>
+                                    <div class="form-check">
+                                        {{ tutor_form.prefers_online }}
+                                        <label class="form-check-label" for="{{ tutor_form.prefers_online.id_for_label }}">
+                                            Available for online sessions
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        {{ tutor_form.prefers_in_person }}
+                                        <label class="form-check-label" for="{{ tutor_form.prefers_in_person.id_for_label }}">
+                                            Available for in-person sessions
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ tutor_form.travel_distance.id_for_label }}" class="form-label">
+                                        Maximum Travel Distance (km)
+                                    </label>
+                                    {{ tutor_form.travel_distance }}
+                                    <div class="form-text">How far are you willing to travel for in-person sessions? (0 for online only)</div>
+                                    {% if tutor_form.travel_distance.errors %}
+                                        <div class="text-danger small mt-1">{{ tutor_form.travel_distance.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <!-- Submit Button -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'profile' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Back to Profile
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

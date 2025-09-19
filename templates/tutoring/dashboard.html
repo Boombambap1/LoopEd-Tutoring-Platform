@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - LoopEd{% endblock %}
+{% block content %}
+<div class="bg-primary text-white py-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col">
+                <h1 class="mb-0">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </h1>
+                <p class="mb-0 opacity-75">Welcome back, {{ user.first_name|default:user.username }}!</p>
+            </div>
+            <div class="col-auto">
+                <span class="badge bg-light text-primary fs-6 px-3 py-2">
+                    <i class="fas fa-user me-1"></i>{{ user.user_type|title }}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row">
+        <!-- Profile Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center p-4">
+                    {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" 
+                             class="rounded-circle mb-3 shadow-sm" width="120" height="120"
+                             style="object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-gradient-primary text-white d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" 
+                             style="width: 120px; height: 120px; font-size: 2.5rem; background: linear-gradient(45deg, #667eea, #764ba2);">
+                            {{ user.first_name.0 }}{{ user.last_name.0 }}
+                        </div>
+                    {% endif %}
+                    
+                    <h5 class="fw-bold">{{ user.get_full_name }}</h5>
+                    <p class="text-muted text-capitalize mb-3">{{ user.user_type }}</p>
+                    
+                    {% if user.user_type == 'tutor' and tutor_profile %}
+                        <div class="border-top pt-3">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <h6 class="text-success fw-bold">${{ tutor_profile.hourly_rate }}</h6>
+                                    <small class="text-muted">Per Hour</small>
+                                </div>
+                                <div class="col-6">
+                                    <h6 class="text-warning fw-bold">{{ tutor_profile.rating }}/5.0</h6>
+                                    <small class="text-muted">Rating</small>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">{{ tutor_profile.total_reviews }} reviews</small>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mt-4">
+                        <button class="btn btn-outline-primary w-100 mb-2">
+                            <i class="fas fa-edit me-2"></i>Edit Profile
+                        </button>
+                        {% if user.user_type == 'tutor' %}
+                            <button class="btn btn-outline-success w-100">
+                                <i class="fas fa-cog me-2"></i>Tutor Settings
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Quick Stats</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total Sessions:</span>
+                        <strong>{{ sessions.count }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>This Month:</span>
+                        <strong>0</strong>
+                    </div>
+                    {% if user.user_type == 'tutor' %}
+                        <div class="d-flex justify-content-between">
+                            <span>Earnings:</span>
+                            <strong class="text-success">$0</strong>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <!-- Quick Actions -->
+            <div class="row mb-4">
+                {% if user.user_type == 'student' %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-primary text-white h-100">
+                            <div class="card-body d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <i class="fas fa-search fa-2x"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-bold">Find Tutors</h6>
+                                    <p class="mb-2 small">Discover qualified tutors for your subjects</p>
+                                    <a href="{% url 'tutor_search' %}" class="btn btn-light btn-sm">
+                                        Browse Tutors
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-success text-white h-100">
+                            <div class="card-body d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <i class="fas fa-calendar-plus fa-2x"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-bold">Upcoming Sessions</h6>
+                                    <p class="mb-2 small">Manage your scheduled tutoring sessions</p>
+                                    <button class="btn btn-light btn-sm">View Calendar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-primary text-white h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-users fa-2x mb-2"></i>
+                                <h6 class="fw-bold">Students</h6>
+                                <h3>{{ sessions.count }}</h3>
+                                <small>Total Students</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-success text-white h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-clock fa-2x mb-2"></i>
+                                <h6 class="fw-bold">Sessions</h6>
+                                <h3>{{ sessions.count }}</h3>
+                                <small>This Month</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-warning text-white h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                                <h6 class="fw-bold">Earnings</h6>
+                                <h3>$0</h3>
+                                <small>This Month</small>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Sessions Table -->
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        {% if user.user_type == 'tutor' %}Your Teaching Sessions{% else %}Your Learning Sessions{% endif %}
+                    </h5>
+                    <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="session-filter" id="all-sessions" checked>
+                        <label class="btn btn-outline-primary btn-sm" for="all-sessions">All</label>
+                        
+                        <input type="radio" class="btn-check" name="session-filter" id="upcoming-sessions">
+                        <label class="btn btn-outline-primary btn-sm" for="upcoming-sessions">Upcoming</label>
+                        
+                        <input type="radio" class="btn-check" name="session-filter" id="completed-sessions">
+                        <label class="btn btn-outline-primary btn-sm" for="completed-sessions">Completed</label>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if sessions %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        {% if user.user_type == 'tutor' %}
+                                            <th><i class="fas fa-user-graduate me-1"></i>Student</th>
+                                        {% else %}
+                                            <th><i class="fas fa-chalkboard-teacher me-1"></i>Tutor</th>
+                                        {% endif %}
+                                        <th><i class="fas fa-book me-1"></i>Subject</th>
+                                        <th><i class="fas fa-calendar me-1"></i>Date & Time</th>
+                                        <th><i class="fas fa-clock me-1"></i>Duration</th>
+                                        <th><i class="fas fa-info-circle me-1"></i>Status</th>
+                                        <th><i class="fas fa-cog me-1"></i>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for session in sessions %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2" 
+                                                     style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                                    {% if user.user_type == 'tutor' %}
+                                                        {{ session.student.first_name.0 }}{{ session.student.last_name.0 }}
+                                                    {% else %}
+                                                        {{ session.tutor.first_name.0 }}{{ session.tutor.last_name.0 }}
+                                                    {% endif %}
+                                                </div>
+                                                <div>
+                                                    {% if user.user_type == 'tutor' %}
+                                                        {{ session.student.get_full_name }}
+                                                    {% else %}
+                                                        {{ session.tutor.get_full_name }}
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark">{{ session.subject.name }}</span>
+                                        </td>
+                                        <td>{{ session.date_time|date:"M d, Y g:i A" }}</td>
+                                        <td>{{ session.duration_hours }} hours</td>
+                                        <td>
+                                            <span class="badge 
+                                                {% if session.status == 'confirmed' %}bg-success
+                                                {% elif session.status == 'pending' %}bg-warning
+                                                {% elif session.status == 'completed' %}bg-primary
+                                                {% else %}bg-secondary{% endif %}">
+                                                {{ session.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a href="{% url 'session_detail' session.id %}" class="btn btn-outline-primary" title="View Details">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    
+                                                    {% if user.user_type == 'tutor' %}
+                                                        {% if session.status == 'pending' %}
+                                                            <a href="{% url 'session_action' session.id 'accept' %}" class="btn btn-outline-success" title="Accept">
+                                                                <i class="fas fa-check"></i>
+                                                            </a>
+                                                            <a href="{% url 'session_action' session.id 'reject' %}" class="btn btn-outline-danger" title="Decline">
+                                                                <i class="fas fa-times"></i>
+                                                            </a>
+                                                        {% elif session.status == 'confirmed' %}
+                                                            <a href="{% url 'session_action' session.id 'complete' %}" class="btn btn-outline-info" title="Mark Complete">
+                                                                <i class="fas fa-check-circle"></i>
+                                                            </a>
+                                                            <a href="{% url 'session_action' session.id 'cancel' %}" class="btn btn-outline-warning" title="Cancel">
+                                                                <i class="fas fa-ban"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        {% if session.status in 'pending,confirmed' %}
+                                                            <a href="{% url 'session_action' session.id 'cancel' %}" class="btn btn-outline-danger" title="Cancel">
+                                                                <i class="fas fa-times"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                            <h4>No sessions yet</h4>
+                            {% if user.user_type == 'student' %}
+                                <p class="text-muted mb-4">Ready to start learning? Find a tutor and book your first session!</p>
+                                <a href="{% url 'tutor_search' %}" class="btn btn-primary">
+                                    <i class="fas fa-search me-2"></i>Find Tutors
+                                </a>
+                            {% else %}
+                                <p class="text-muted mb-4">Students haven't found you yet. Make sure your profile is complete and attractive!</p>
+                                <button class="btn btn-primary">
+                                    <i class="fas fa-edit me-2"></i>Complete Profile
+                                </button>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}Book Session with {{ tutor.user.get_full_name }} - LoopEd{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-calendar-plus me-2"></i>Book a Session
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Tutor Info -->
+                    <div class="row mb-4">
+                        <div class="col-auto">
+                            {% if tutor.user.profile_picture %}
+                                <img src="{{ tutor.user.profile_picture.url }}" 
+                                     class="rounded-circle" width="60" height="60"
+                                     style="object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+                                     style="width: 60px; height: 60px; font-size: 1.2rem;">
+                                    {{ tutor.user.first_name.0 }}{{ tutor.user.last_name.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col">
+                            <h5 class="mb-1">{{ tutor.user.get_full_name }}</h5>
+                            <p class="text-muted mb-1">{{ tutor.experience_years }} years experience</p>
+                            <p class="text-success fw-bold mb-0">${{ tutor.hourly_rate }}/hour</p>
+                        </div>
+                    </div>
+
+                    <!-- Booking Form -->
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.subject.id_for_label }}" class="form-label fw-bold">
+                                    Subject <span class="text-danger">*</span>
+                                </label>
+                                {{ form.subject }}
+                                {% if form.subject.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.subject.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.duration_hours.id_for_label }}" class="form-label fw-bold">
+                                    Duration <span class="text-danger">*</span>
+                                </label>
+                                {{ form.duration_hours }}
+                                {% if form.duration_hours.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.duration_hours.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.preferred_date.id_for_label }}" class="form-label fw-bold">
+                                    Preferred Date <span class="text-danger">*</span>
+                                </label>
+                                {{ form.preferred_date }}
+                                {% if form.preferred_date.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.preferred_date.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.preferred_time.id_for_label }}" class="form-label fw-bold">
+                                    Preferred Time <span class="text-danger">*</span>
+                                </label>
+                                {{ form.preferred_time }}
+                                {% if form.preferred_time.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.preferred_time.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label fw-bold">
+                                Additional Notes
+                            </label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="text-danger small mt-1">
+                                    {{ form.notes.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Price Calculation -->
+                        <div class="alert alert-info">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <i class="fas fa-calculator me-2"></i>
+                                    <strong>Estimated Cost:</strong>
+                                    <span id="estimated-cost">${{ tutor.hourly_rate }}</span>
+                                    <small class="text-muted">(Rate: ${{ tutor.hourly_rate }}/hour)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Note:</strong> This is a booking request. The tutor will review and confirm your session details.
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'tutor_detail' tutor.id %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Back to Profile
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Send Booking Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Calculate estimated cost when duration changes
+document.addEventListener('DOMContentLoaded', function() {
+    const durationSelect = document.getElementById('{{ form.duration_hours.id_for_label }}');
+    const costSpan = document.getElementById('estimated-cost');
+    const hourlyRate = {{ tutor.hourly_rate }};
+    
+    function updateCost() {
+        const duration = parseFloat(durationSelect.value);
+        const total = (duration * hourlyRate).toFixed(2);
+        costSpan.textContent = '$' + total;
+    }
+    
+    durationSelect.addEventListener('change', updateCost);
+    updateCost(); // Initial calculation
+});
+</script>
+{% endblock %}
