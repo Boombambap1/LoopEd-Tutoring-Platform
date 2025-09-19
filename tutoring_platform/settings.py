@@ -87,3 +87,18 @@ LOGOUT_REDIRECT_URL = '/'
 WSGI_APPLICATION = 'tutoring_platform.wsgi.application'
 # WhiteNoise settings
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Production settings override
+if 'RAILWAY_ENVIRONMENT_NAME' in os.environ:
+    DEBUG = False
+    ALLOWED_HOSTS = ['*.up.railway.app']
+    
+    # Database
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+    }
+    
+    # Static files for production
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
