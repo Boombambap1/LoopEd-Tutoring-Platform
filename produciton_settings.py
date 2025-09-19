@@ -1,4 +1,4 @@
-from .settings import *
+from tutoring_platform.settings import *
 import os
 
 # Production settings
