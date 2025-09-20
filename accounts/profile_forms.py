@@ -5,8 +5,8 @@ class ProfileEditForm(forms.ModelForm):
     class Meta:
         model = User
         fields = [
-            'first_name', 'last_name', 'email', 'phone', 'bio', 
-            'profile_picture', 'location', 'school', 'grade_level', 
+            'first_name', 'last_name', 'email', 'phone', 'bio',
+            'profile_picture', 'location', 'school', 'grade_level',
             'interests', 'social_linkedin', 'social_instagram', 'is_profile_public'
         ]
         widgets = {
@@ -35,28 +35,31 @@ class TutorProfileEditForm(forms.ModelForm):
     class Meta:
         model = TutorProfile
         fields = [
-            'hourly_rate', 'subjects', 'experience_years', 'education', 
-            'experience_level', 'teaching_style', 'certifications', 
+            'subjects', 'experience_years', 'education',
+            'experience_level', 'teaching_style', 'certifications',
             'specializations', 'teaching_philosophy', 'languages_spoken',
-            'availability', 'prefers_online', 'prefers_in_person', 'travel_distance'
+            'availability', 'motivation', 'commitment_level', 'volunteer_hours_goal',
+            'prefers_online', 'prefers_in_person', 'travel_distance'
         ]
         widgets = {
-            'hourly_rate': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.50', 'min': '10'}),
             'experience_years': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'max': '50'}),
             'education': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your educational background'}),
             'experience_level': forms.Select(attrs={'class': 'form-select'}),
             'teaching_style': forms.Select(attrs={'class': 'form-select'}),
-            'certifications': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'specializations': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'teaching_philosophy': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'certifications': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Teaching certifications, degrees, etc.'}),
+            'specializations': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Special areas of expertise...'}),
+            'teaching_philosophy': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Your approach to teaching...'}),
             'languages_spoken': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'English, French, Spanish...'}),
-            'availability': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'availability': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Describe when you are available to tutor...'}),
+            'motivation': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Why do you want to volunteer as a tutor?'}),
+            'commitment_level': forms.Select(attrs={'class': 'form-select'}),
+            'volunteer_hours_goal': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '100', 'placeholder': '10'}),
             'prefers_online': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'prefers_in_person': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'travel_distance': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'max': '100'}),
         }
     
-def __init__(self, *args, **kwargs):
-    super().__init__(*args, **kwargs)
-    from tutoring.models import Subject
-    self.fields['subjects'].queryset = Subject.objects.all()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from tutoring.models import Subject
+        self.fields['subjects'].queryset = Subject.objects.all()

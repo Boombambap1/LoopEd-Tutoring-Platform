@@ -14,6 +14,6 @@ class CustomUserAdmin(UserAdmin):
 
 @admin.register(TutorProfile)
 class TutorProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'hourly_rate', 'experience_years', 'is_verified', 'rating')
-    list_filter = ('is_verified', 'experience_years')
+    list_display = ('user', 'volunteer_hours_completed', 'experience_years', 'is_verified', 'rating')
+    list_filter = ('is_verified', 'experience_years', 'commitment_level')
     search_fields = ('user__username', 'user__first_name', 'user__last_name')

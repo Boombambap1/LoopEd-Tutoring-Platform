@@ -41,9 +41,17 @@
                         </div>
                     </div>
 
-                    <div class="price-info bg-light p-3 rounded mb-4">
-                        <h2 class="text-success mb-1">${{ tutor.hourly_rate }}/hour</h2>
-                        <small class="text-muted">Starting rate</small>
+                    <div class="volunteer-stats">
+                        <div class="hours-completed">
+                            <h3>{{ tutor.volunteer_hours_completed }}</h3>
+                            <p>Hours Volunteered</p>
+                        </div>
+                        <div class="volunteer-level">
+                            <span class="badge bg-success">{{ tutor.get_volunteer_level }}</span>
+                        </div>
+                        <div class="commitment">
+                            <small class="text-muted">{{ tutor.get_commitment_level_display }} commitment</small>
+                        </div>
                     </div>
 
                     {% if user.is_authenticated and user.user_type == 'student' %}
