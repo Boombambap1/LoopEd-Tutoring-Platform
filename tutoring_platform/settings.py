@@ -86,6 +86,7 @@ LOGOUT_REDIRECT_URL = '/'
 WSGI_APPLICATION = 'tutoring_platform.wsgi.application'
 # WhiteNoise settings
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+DEBUG = True
 
 # Production settings override
 # Production settings override

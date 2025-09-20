@@ -56,7 +56,7 @@ class TutorProfileEditForm(forms.ModelForm):
             'travel_distance': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'max': '100'}),
         }
     
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        from tutoring.models import Subject
-        self.fields['subjects'].queryset = Subject.objects.all()
+def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    from tutoring.models import Subject
+    self.fields['subjects'].queryset = Subject.objects.all()
