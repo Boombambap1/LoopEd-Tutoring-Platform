@@ -89,9 +89,16 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Production settings override
 # Production settings override
+# Production settings override
+
+# Production settings override
 if 'RAILWAY_ENVIRONMENT_NAME' in os.environ:
     DEBUG = False
     ALLOWED_HOSTS = ['looped-tutoring-platform-production.up.railway.app', '*.up.railway.app']
+    
+    # CSRF settings for production
+    CSRF_TRUSTED_ORIGINS = ['https://looped-tutoring-platform-production.up.railway.app']
+    SECURE_CROSS_ORIGIN_OPENER_POLICY = None
     
     # Database - safer parsing
     import dj_database_url
