@@ -88,14 +88,15 @@ WSGI_APPLICATION = 'tutoring_platform.wsgi.application'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Production settings override
+# Production settings override
 if 'RAILWAY_ENVIRONMENT_NAME' in os.environ:
     DEBUG = False
-    ALLOWED_HOSTS = ['*.up.railway.app']
+    ALLOWED_HOSTS = ['looped-tutoring-platform-production.up.railway.app', '*.up.railway.app']
     
     # Database - safer parsing
+    import dj_database_url
     database_url = os.environ.get('DATABASE_URL')
     if database_url:
-        import dj_database_url
         DATABASES = {
             'default': dj_database_url.parse(database_url)
         }
