@@ -4,7 +4,6 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "python manage.py migrate runserver",
-    "healthcheckPath": "/"
+    "startCommand": "python manage.py collectstatic --noinput && gunicorn tutoring_platform.wsgi:application --bind 0.0.0.0:$PORT"
   }
 }
