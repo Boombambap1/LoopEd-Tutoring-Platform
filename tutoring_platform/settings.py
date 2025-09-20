@@ -44,7 +44,6 @@ MIDDLEWARE = [
 
 
 ROOT_URLCONF = 'tutoring_platform.urls'
-WSGI_APPLICATION = 'tutoring_platform.wsgi.application'
 
 TEMPLATES = [
     {
@@ -93,11 +92,13 @@ if 'RAILWAY_ENVIRONMENT_NAME' in os.environ:
     DEBUG = False
     ALLOWED_HOSTS = ['*.up.railway.app']
     
-    # Database
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
-    }
+    # Database - safer parsing
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url:
+        import dj_database_url
+        DATABASES = {
+            'default': dj_database_url.parse(database_url)
+        }
     
     # Static files for production
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
