@@ -43,9 +43,9 @@
                     {% if user.user_type == 'tutor' and tutor_profile %}
                         <div class="border-top pt-3">
                             <div class="row text-center">
-                                <div class="col-6">
-                                    <h6 class="text-success fw-bold">${{ tutor_profile.hourly_rate }}</h6>
-                                    <small class="text-muted">Per Hour</small>
+                                <div class="col-6 border-end">
+                                    <h6 class="text-success fw-bold">{{ tutor_profile.volunteer_hours_completed }}</h6>
+                                    <small class="text-muted">Hours Volunteered</small>
                                 </div>
                                 <div class="col-6">
                                     <h6 class="text-warning fw-bold">{{ tutor_profile.rating }}/5.0</h6>
@@ -59,14 +59,9 @@
                     {% endif %}
                     
                     <div class="mt-4">
-                        <button class="btn btn-outline-primary w-100 mb-2">
+                        <a href="{% url 'edit_profile' %}" class="btn btn-outline-primary w-100 mb-2">
                             <i class="fas fa-edit me-2"></i>Edit Profile
-                        </button>
-                        {% if user.user_type == 'tutor' %}
-                            <button class="btn btn-outline-success w-100">
-                                <i class="fas fa-cog me-2"></i>Tutor Settings
-                            </button>
-                        {% endif %}
+                        </a>
                     </div>
                 </div>
             </div>
@@ -87,8 +82,8 @@
                     </div>
                     {% if user.user_type == 'tutor' %}
                         <div class="d-flex justify-content-between">
-                            <span>Earnings:</span>
-                            <strong class="text-success">$0</strong>
+                            <span>Hours Volunteered:</span>
+                            <strong class="text-success">{{ tutor_profile.volunteer_hours_completed|default:0 }}</strong>
                         </div>
                     {% endif %}
                 </div>
@@ -108,7 +103,7 @@
                                 </div>
                                 <div class="flex-grow-1">
                                     <h6 class="fw-bold">Find Tutors</h6>
-                                    <p class="mb-2 small">Discover qualified tutors for your subjects</p>
+                                    <p class="mb-2 small">Discover qualified volunteer tutors for your subjects</p>
                                     <a href="{% url 'tutor_search' %}" class="btn btn-light btn-sm">
                                         Browse Tutors
                                     </a>
@@ -154,10 +149,10 @@
                     <div class="col-md-4 mb-3">
                         <div class="card bg-warning text-white h-100">
                             <div class="card-body text-center">
-                                <i class="fas fa-dollar-sign fa-2x mb-2"></i>
-                                <h6 class="fw-bold">Earnings</h6>
-                                <h3>$0</h3>
-                                <small>This Month</small>
+                                <i class="fas fa-award fa-2x mb-2"></i>
+                                <h6 class="fw-bold">Hours Volunteered</h6>
+                                <h3>{{ tutor_profile.volunteer_hours_completed|default:0 }}</h3>
+                                <small>Total Hours</small>
                             </div>
                         </div>
                     </div>
@@ -202,7 +197,7 @@
                                 </thead>
                                 <tbody>
                                     {% for session in sessions %}
-                                    <tr>
+                                    <tr data-session-id="{{ session.id }}">
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2" 
@@ -237,37 +232,59 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm" role="group">
-                                                    <a href="{% url 'session_detail' session.id %}" class="btn btn-outline-primary" title="View Details">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    
-                                                    {% if user.user_type == 'tutor' %}
-                                                        {% if session.status == 'pending' %}
-                                                            <a href="{% url 'session_action' session.id 'accept' %}" class="btn btn-outline-success" title="Accept">
-                                                                <i class="fas fa-check"></i>
-                                                            </a>
-                                                            <a href="{% url 'session_action' session.id 'reject' %}" class="btn btn-outline-danger" title="Decline">
-                                                                <i class="fas fa-times"></i>
-                                                            </a>
-                                                        {% elif session.status == 'confirmed' %}
-                                                            <a href="{% url 'session_action' session.id 'complete' %}" class="btn btn-outline-info" title="Mark Complete">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="{% url 'session_detail' session.id %}" class="btn btn-outline-primary" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                
+                                                {% if user.user_type == 'tutor' %}
+                                                    {% if session.status == 'pending' %}
+                                                        <a href="{% url 'session_action' session.id 'accept' %}" class="btn btn-outline-success" title="Accept">
+                                                            <i class="fas fa-check"></i>
+                                                        </a>
+                                                        <a href="{% url 'session_action' session.id 'reject' %}" class="btn btn-outline-danger" title="Decline">
+                                                            <i class="fas fa-times"></i>
+                                                        </a>
+                                                    {% elif session.status == 'confirmed' %}
+                                                        {% if session.can_be_completed %}
+                                                            <button onclick="completeSession({{ session.id }})" 
+                                                                    class="btn btn-success" 
+                                                                    id="complete-btn-{{ session.id }}"
+                                                                    title="Mark Complete (+{{ session.duration_hours }} hours)">
                                                                 <i class="fas fa-check-circle"></i>
-                                                            </a>
-                                                            <a href="{% url 'session_action' session.id 'cancel' %}" class="btn btn-outline-warning" title="Cancel">
-                                                                <i class="fas fa-ban"></i>
-                                                            </a>
+                                                            </button>
+                                                        {% else %}
+                                                            <button class="btn btn-secondary" 
+                                                                    disabled 
+                                                                    id="complete-btn-{{ session.id }}"
+                                                                    title="Session not finished yet">
+                                                                <i class="fas fa-clock"></i>
+                                                            </button>
                                                         {% endif %}
-                                                    {% else %}
-                                                        {% if session.status in 'pending,confirmed' %}
-                                                            <a href="{% url 'session_action' session.id 'cancel' %}" class="btn btn-outline-danger" title="Cancel">
-                                                                <i class="fas fa-times"></i>
-                                                            </a>
-                                                        {% endif %}
+                                                        
+                                                        <a href="{% url 'session_action' session.id 'cancel' %}" class="btn btn-outline-warning" title="Cancel">
+                                                            <i class="fas fa-ban"></i>
+                                                        </a>
+                                                    {% elif session.status == 'completed' %}
+                                                        <span class="text-success small">
+                                                            <i class="fas fa-award"></i> +{{ session.duration_hours }}h earned
+                                                        </span>
                                                     {% endif %}
+                                                {% else %}
+                                                    {% if session.status in 'pending,confirmed' %}
+                                                        <a href="{% url 'session_action' session.id 'cancel' %}" class="btn btn-outline-danger" title="Cancel">
+                                                            <i class="fas fa-times"></i>
+                                                        </a>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <!-- Time remaining display for tutors -->
+                                            {% if user.user_type == 'tutor' and session.status == 'confirmed' and not session.can_be_completed %}
+                                                <div class="text-muted small mt-1" id="time-remaining-{{ session.id }}">
+                                                    <i class="fas fa-hourglass-half"></i> Checking...
                                                 </div>
-                                            </td>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -285,9 +302,9 @@
                                 </a>
                             {% else %}
                                 <p class="text-muted mb-4">Students haven't found you yet. Make sure your profile is complete and attractive!</p>
-                                <button class="btn btn-primary">
+                                <a href="{% url 'edit_profile' %}" class="btn btn-primary">
                                     <i class="fas fa-edit me-2"></i>Complete Profile
-                                </button>
+                                </a>
                             {% endif %}
                         </div>
                     {% endif %}
@@ -296,4 +313,84 @@
         </div>
     </div>
 </div>
+
+<script>
+// Real-time completion status checking
+function checkCompletionStatus(sessionId) {
+    fetch(`/check-completion/${sessionId}/`)
+        .then(response => response.json())
+        .then(data => {
+            const completeBtn = document.getElementById(`complete-btn-${sessionId}`);
+            const timeRemaining = document.getElementById(`time-remaining-${sessionId}`);
+            
+            if (data.can_complete) {
+                completeBtn.disabled = false;
+                completeBtn.className = 'btn btn-success btn-sm';
+                completeBtn.innerHTML = '<i class="fas fa-check-circle"></i>';
+                completeBtn.title = 'Mark Complete';
+                completeBtn.onclick = () => completeSession(sessionId);
+                if (timeRemaining) {
+                    timeRemaining.innerHTML = '<i class="fas fa-check text-success"></i> <small>Ready to complete!</small>';
+                }
+            } else if (data.time_left_seconds > 0) {
+                if (timeRemaining) {
+                    timeRemaining.innerHTML = `<i class="fas fa-hourglass-half"></i> <small>Ends ${data.session_end_time}</small>`;
+                }
+            }
+        })
+        .catch(error => console.error('Error checking completion status:', error));
+}
+
+function completeSession(sessionId) {
+    if (confirm('Mark this session as completed? This will add volunteer hours to your profile.')) {
+        // Show loading state
+        const btn = document.getElementById(`complete-btn-${sessionId}`);
+        const originalContent = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        btn.disabled = true;
+        
+        fetch(`/complete-session/${sessionId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload(); // Refresh to show updated status and hours
+            } else {
+                alert('Error completing session. Please try again.');
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error completing session. Please try again.');
+            btn.innerHTML = originalContent;
+            btn.disabled = false;
+        });
+    }
+}
+
+// Check completion status every minute for confirmed sessions
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmedSessions = document.querySelectorAll('tr[data-session-id]');
+    
+    confirmedSessions.forEach(sessionRow => {
+        const sessionId = sessionRow.dataset.sessionId;
+        const completeBtn = document.getElementById(`complete-btn-${sessionId}`);
+        
+        if (completeBtn && completeBtn.disabled && completeBtn.classList.contains('btn-secondary')) {
+            // Check status immediately
+            checkCompletionStatus(sessionId);
+            
+            // Then check every minute
+            setInterval(() => checkCompletionStatus(sessionId), 60000);
+        }
+    });
+});
+</script>
+
 {% endblock %}

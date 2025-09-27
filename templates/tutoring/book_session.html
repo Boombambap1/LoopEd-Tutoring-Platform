@@ -30,7 +30,6 @@
                         <div class="col">
                             <h5 class="mb-1">{{ tutor.user.get_full_name }}</h5>
                             <p class="text-muted mb-1">{{ tutor.experience_years }} years experience</p>
-                            <p class="text-success fw-bold mb-0">${{ tutor.hourly_rate }}/hour</p>
                         </div>
                     </div>
 
@@ -106,18 +105,7 @@
                             {% endif %}
                         </div>
 
-                        <!-- Price Calculation -->
-                        <div class="alert alert-info">
-                            <div class="row align-items-center">
-                                <div class="col">
-                                    <i class="fas fa-calculator me-2"></i>
-                                    <strong>Estimated Cost:</strong>
-                                    <span id="estimated-cost">${{ tutor.hourly_rate }}</span>
-                                    <small class="text-muted">(Rate: ${{ tutor.hourly_rate }}/hour)</small>
-                                </div>
-                            </div>
-                        </div>
-
+                        <!-- Price Calculation -->                      
                         <div class="alert alert-warning">
                             <i class="fas fa-info-circle me-2"></i>
                             <strong>Note:</strong> This is a booking request. The tutor will review and confirm your session details.
@@ -139,20 +127,92 @@
 </div>
 
 <script>
-// Calculate estimated cost when duration changes
 document.addEventListener('DOMContentLoaded', function() {
-    const durationSelect = document.getElementById('{{ form.duration_hours.id_for_label }}');
-    const costSpan = document.getElementById('estimated-cost');
-    const hourlyRate = {{ tutor.hourly_rate }};
+    const dateInput = document.getElementById('id_preferred_date');
+    const timeInput = document.getElementById('id_preferred_time');
     
-    function updateCost() {
-        const duration = parseFloat(durationSelect.value);
-        const total = (duration * hourlyRate).toFixed(2);
-        costSpan.textContent = '$' + total;
+    // Set minimum date to today
+    const today = new Date();
+    const todayString = today.getFullYear() + '-' + 
+    String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+    String(today.getDate()).padStart(2, '0');
+    dateInput.min = todayString;
+    
+    // Set default date to today if empty
+    if (!dateInput.value) {
+        dateInput.value = todayString;
     }
     
-    durationSelect.addEventListener('change', updateCost);
-    updateCost(); // Initial calculation
+    function validateDateTime() {
+    const selectedDateString = dateInput.value; // YYYY-MM-DD format
+    const selectedTime = timeInput.value;
+    const now = new Date();
+    
+    // Create today's date string in same format
+    const todayString = now.getFullYear() + '-' + 
+        String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+        String(now.getDate()).padStart(2, '0');
+    
+    // If selected date is today, check if time is in the future
+    if (selectedDateString === todayString) {
+        const currentTime = now.getHours().toString().padStart(2, '0') + ':' + 
+                           now.getMinutes().toString().padStart(2, '0');
+        
+        if (selectedTime <= currentTime) {
+            // Set time to next available hour
+            const nextHour = now.getHours() + 1;
+            if (nextHour < 24) {
+                timeInput.value = nextHour.toString().padStart(2, '0') + ':00';
+            } else {
+                // If it's late, suggest tomorrow
+                const tomorrow = new Date(now);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const tomorrowString = tomorrow.getFullYear() + '-' + 
+                    String(tomorrow.getMonth() + 1).padStart(2, '0') + '-' + 
+                    String(tomorrow.getDate()).padStart(2, '0');
+                dateInput.value = tomorrowString;
+                timeInput.value = '09:00';
+            }
+            
+            showWarning('Selected time is in the past. We\'ve adjusted it to the next available time.');
+        }
+    }
+}
+    
+    function showWarning(message) {
+        // Remove existing warning
+        const existingWarning = document.querySelector('.time-warning');
+        if (existingWarning) {
+            existingWarning.remove();
+        }
+        
+        // Add new warning
+        const warning = document.createElement('div');
+        warning.className = 'alert alert-warning time-warning mt-2';
+        warning.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>' + message;
+        timeInput.parentNode.appendChild(warning);
+        
+        // Remove warning after 5 seconds
+        setTimeout(() => warning.remove(), 5000);
+    }
+    
+    // Validate on date change
+    dateInput.addEventListener('change', validateDateTime);
+    
+    // Validate on time change
+    timeInput.addEventListener('change', validateDateTime);
+    
+    // Validate on form submit
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const selectedDate = new Date(dateInput.value + 'T' + timeInput.value);
+        const now = new Date();
+        
+        if (selectedDate <= now) {
+            e.preventDefault();
+            showWarning('Please select a future date and time for your session.');
+            return false;
+        }
+    });
 });
 </script>
 {% endblock %}

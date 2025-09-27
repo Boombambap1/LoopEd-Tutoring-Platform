@@ -138,9 +138,11 @@ def session_action(request, session_id, action):
     
     elif action == 'complete':
         if request.user == session.tutor and session.status == 'confirmed':
-            session.status = 'completed'
-            session.save()
-            messages.success(request, 'Session marked as completed!')
+            try:
+                session.mark_as_completed()
+                messages.success(request, f'Session completed! {session.duration_hours} volunteer hours added to your profile.')
+            except ValueError as e:
+                messages.error(request, str(e))
         else:
             messages.error(request, 'Only the tutor can mark confirmed sessions as completed.')
     
@@ -157,4 +159,39 @@ def session_detail(request, session_id):
     
     return render(request, 'tutoring/session_detail.html', {
         'session': session
+    })
+
+# New time-based completion views
+@login_required
+def complete_session(request, session_id):
+    session = get_object_or_404(TutoringSession, id=session_id, tutor=request.user)
+    
+    if request.method == 'POST':
+        try:
+            session.mark_as_completed()
+            messages.success(request, f'Session completed! {session.duration_hours} volunteer hours added to your profile.')
+            return redirect('dashboard')
+        except ValueError as e:
+            messages.error(request, str(e))
+            return redirect('session_detail', session_id=session_id)
+    
+    # For GET requests, return JSON with completion status
+    return JsonResponse({
+        'can_complete': session.can_be_completed(),
+        'time_left': str(session.get_time_until_completion()) if session.get_time_until_completion() else None,
+        'session_end_time': session.get_session_end_time().isoformat() if session.get_session_end_time() else None
+    })
+
+@login_required
+def check_completion_status(request, session_id):
+    """AJAX endpoint to check if session can be completed"""
+    session = get_object_or_404(TutoringSession, id=session_id, tutor=request.user)
+    
+    time_left = session.get_time_until_completion()
+    
+    return JsonResponse({
+        'can_complete': session.can_be_completed(),
+        'time_left_seconds': int(time_left.total_seconds()) if time_left else 0,
+        'time_left_display': str(time_left).split('.')[0] if time_left else "Session completed",
+        'session_end_time': session.get_session_end_time().strftime('%B %d, %Y at %I:%M %p') if session.get_session_end_time() else None
     })

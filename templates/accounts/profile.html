@@ -95,13 +95,13 @@
             {% if profile_user.user_type == 'tutor' and tutor_profile %}
                 <div class="card shadow-sm mt-4">
                     <div class="card-header">
-                        <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Tutor Stats</h6>
+                        <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Volunteer Stats</h6>
                     </div>
                     <div class="card-body">
                         <div class="row text-center">
                             <div class="col-6 mb-3">
-                                <h5 class="text-success fw-bold">${{ tutor_profile.hourly_rate }}</h5>
-                                <small class="text-muted">Per Hour</small>
+                                <h5 class="text-success fw-bold">{{ tutor_profile.volunteer_hours_completed }}</h5>
+                                <small class="text-muted">Hours Volunteered</small>
                             </div>
                             <div class="col-6 mb-3">
                                 <h5 class="text-warning fw-bold">{{ tutor_profile.rating }}/5.0</h5>
@@ -116,6 +116,27 @@
                                 <small class="text-muted">Reviews</small>
                             </div>
                         </div>
+                        
+                        <!-- Volunteer Level Badge -->
+                        <div class="text-center mt-3">
+                            <span class="badge bg-gradient-success p-2">
+                                <i class="fas fa-award me-1"></i>{{ tutor_profile.get_volunteer_level }}
+                            </span>
+                        </div>
+                        
+                        <!-- Progress toward monthly goal -->
+                        {% if tutor_profile.volunteer_hours_goal > 0 %}
+                            <div class="mt-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <small class="text-muted">Monthly Goal Progress</small>
+                                    <small class="text-muted">{{ tutor_profile.volunteer_hours_completed }}/{{ tutor_profile.volunteer_hours_goal }}</small>
+                                </div>
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar bg-success" 
+                                        style="width: {{ tutor_profile.get_completion_rate }}%"></div>
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             {% endif %}
