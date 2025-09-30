@@ -30,6 +30,18 @@ class User(AbstractUser):
         return None
 
 class TutorProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    
+    # ADD THESE APPROVAL FIELDS
+    is_approved = models.BooleanField(
+        default=False, 
+        help_text="Admin must approve before tutor can access platform"
+    )
+    approval_date = models.DateTimeField(null=True, blank=True)
+    rejection_reason = models.TextField(
+        blank=True, 
+        help_text="Optional reason if application is rejected"
+    )
     EXPERIENCE_CHOICES = [
         ('beginner', 'Less than 1 year'),
         ('intermediate', '1-3 years'),

@@ -7,8 +7,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         User = get_user_model()
         username = 'admin'
-        email = 'admin@looped.com'
-        password = 'admin123'  # Change this!
+        email = 'loopedcollab@gmail.com'
+        password = 'Boombambap1'  # Change this!
         
         if not User.objects.filter(username=username).exists():
             User.objects.create_superuser(username, email, password)

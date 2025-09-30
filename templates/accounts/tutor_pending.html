@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Application Pending - LoopED{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card text-center shadow-lg border-0">
+                <div class="card-body p-5">
+                    <div class="mb-4">
+                        <div class="pending-icon">
+                            <i class="fas fa-hourglass-half fa-4x text-warning"></i>
+                        </div>
+                    </div>
+                    
+                    <h2 class="card-title mb-3 fw-bold">Application Under Review</h2>
+                    
+                    <p class="lead text-muted mb-4">
+                        Thank you for applying to become a volunteer tutor on LoopED!
+                    </p>
+                    
+                    <div class="alert alert-info text-start mb-4">
+                        <h5 class="alert-heading"><i class="fas fa-info-circle"></i> Current Status</h5>
+                        <p class="mb-0">
+                            Your tutor application is currently being reviewed by our administrators. 
+                            You will receive an email notification once your account is approved.
+                        </p>
+                    </div>
+                    
+                    <div class="card bg-light border-0 mb-4">
+                        <div class="card-body">
+                            <h5 class="mb-3"><i class="fas fa-tasks"></i> What Happens Next?</h5>
+                            <div class="text-start">
+                                <div class="d-flex align-items-start mb-2">
+                                    <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                                    <span>We review your qualifications and experience</span>
+                                </div>
+                                <div class="d-flex align-items-start mb-2">
+                                    <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                                    <span>We verify your profile information</span>
+                                </div>
+                                <div class="d-flex align-items-start mb-2">
+                                    <i class="fas fa-clock text-warning me-2 mt-1"></i>
+                                    <span>You'll receive approval (usually within 1-2 business days)</span>
+                                </div>
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-star text-primary me-2 mt-1"></i>
+                                    <span>Once approved, you can start accepting tutoring sessions!</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2 justify-content-center flex-wrap">
+                        <a href="{% url 'home' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-home"></i> Return to Home
+                        </a>
+                        <a href="{% url 'profile' %}" class="btn btn-primary">
+                            <i class="fas fa-user"></i> View My Profile
+                        </a>
+                    </div>
+                    
+                    <p class="text-muted small mt-4 mb-0">
+                        <i class="fas fa-question-circle"></i> 
+                        Questions? Contact us at <a href="mailto:support@looped.com">support@looped.com</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .pending-icon {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+    }
+    
+    .card {
+        border-radius: 1rem;
+    }
+    
+    .alert {
+        border-radius: 0.75rem;
+    }
+</style>
+{% endblock %}

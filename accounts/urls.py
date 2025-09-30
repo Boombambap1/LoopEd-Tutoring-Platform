@@ -8,4 +8,6 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),  # Own profile
     path('profile/<int:user_id>/', views.profile_view, name='view_profile'),  # View other's profile
     path('profile/edit/', views.edit_profile, name='edit_profile'),
+    path('tutor/complete-profile/', views.complete_tutor_profile, name='complete_tutor_profile'),
+    path('tutor/pending/', views.tutor_pending_approval, name='tutor_pending_approval'),
 ]
