@@ -78,9 +78,27 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-chalkboard-teacher me-1"></i>Become a Tutor
-                        </a>
+                        {% if user.is_authenticated %}
+                            {% if user.user_type == 'student' %}
+                                <a href="{% url 'switch_to_tutor' %}" class="btn btn-warning">
+                                    <i class="fas fa-chalkboard-teacher"></i> Become a Tutor
+                                </a>
+                            {% elif user.user_type == 'tutor' %}
+                                {% if user.tutorprofile.is_approved %}
+                                    <a href="{% url 'dashboard' %}" class="btn btn-success">
+                                        <i class="fas fa-chalkboard-teacher"></i> Dashboard
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'tutor_pending_approval' %}" class="btn btn-warning">
+                                        <i class="fas fa-clock"></i> Application Pending
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'signup' %}" class="btn btn-warning">
+                                <i class="fas fa-chalkboard-teacher"></i> Become a Tutor
+                            </a>
+                        {% endif %}
                     </li>
                 </ul>
                 <ul class="navbar-nav">

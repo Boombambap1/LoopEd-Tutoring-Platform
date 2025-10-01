@@ -10,4 +10,5 @@ urlpatterns = [
     path('profile/edit/', views.edit_profile, name='edit_profile'),
     path('tutor/complete-profile/', views.complete_tutor_profile, name='complete_tutor_profile'),
     path('tutor/pending/', views.tutor_pending_approval, name='tutor_pending_approval'),
+    path('switch-to-tutor/', views.switch_to_tutor, name='switch_to_tutor'),
 ]

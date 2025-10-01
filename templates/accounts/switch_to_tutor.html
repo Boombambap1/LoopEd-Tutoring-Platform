@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Become a Tutor - LoopED{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-chalkboard-teacher"></i> Become a Volunteer Tutor</h3>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Account Conversion:</strong> You're currently registered as a student. 
+                        Converting to a tutor account will allow you to offer tutoring sessions.
+                    </div>
+
+                    <h5 class="mb-3">What happens when you become a tutor?</h5>
+                    <ul class="mb-4">
+                        <li>Your account will be converted to a tutor account</li>
+                        <li>You'll complete a tutor profile with your qualifications</li>
+                        <li>An administrator will review your application</li>
+                        <li>Once approved, you can start accepting tutoring sessions</li>
+                        <li>You'll track volunteer hours and help students succeed</li>
+                    </ul>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Note:</strong> After conversion, you'll primarily function as a tutor. 
+                        If you want to book sessions as a student, consider creating a separate student account.
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-exchange-alt"></i> Convert to Tutor Account
+                            </button>
+                            <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

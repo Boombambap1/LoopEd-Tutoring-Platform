@@ -175,3 +175,32 @@ class CustomLoginView(LoginView):
         
         # Default redirect
         return super().get_success_url()
+
+@login_required
+def switch_to_tutor(request):
+    """Allow students to convert their account to a tutor account"""
+    if request.user.user_type == 'tutor':
+        messages.info(request, 'You are already registered as a tutor.')
+        try:
+            if request.user.tutorprofile.is_approved:
+                return redirect('dashboard')
+            else:
+                return redirect('tutor_pending_approval')
+        except TutorProfile.DoesNotExist:
+            return redirect('complete_tutor_profile')
+    
+    if request.method == 'POST':
+        # Switch user type
+        request.user.user_type = 'tutor'
+        request.user.save()
+        
+        # Create tutor profile
+        TutorProfile.objects.create(user=request.user, is_approved=False)
+        
+        messages.success(
+            request, 
+            'Your account has been converted to a tutor account! Please complete your tutor profile.'
+        )
+        return redirect('complete_tutor_profile')
+    
+    return render(request, 'accounts/switch_to_tutor.html')
