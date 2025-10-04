@@ -11,4 +11,5 @@ urlpatterns = [
     path('session/<int:session_id>/<str:action>/', views.session_action, name='session_action'),  # Add this
     path('complete-session/<int:session_id>/', views.complete_session, name='complete_session'),
     path('check-completion/<int:session_id>/', views.check_completion_status, name='check_completion_status'),
+    path('review/<int:session_id>/', views.submit_review, name='submit_review'),
 ]

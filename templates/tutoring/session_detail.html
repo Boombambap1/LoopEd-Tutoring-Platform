@@ -70,20 +70,7 @@
                             <p class="mb-0">{{ session.date_time|date:"l, F d, Y" }}</p>
                             <p class="mb-0">{{ session.date_time|date:"g:i A" }}</p>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <h6 class="text-muted"><i class="fas fa-dollar-sign me-2"></i>Cost</h6>
-                            {% if user.user_type == 'student' %}
-                                <p class="mb-0 text-success fw-bold">
-                                    ${{ session.tutor.tutorprofile.hourly_rate|floatformat:2 }} × {{ session.duration_hours }} = 
-                                    ${% widthratio session.tutor.tutorprofile.hourly_rate 1 session.duration_hours %}
-                                </p>
-                            {% else %}
-                                <p class="mb-0 text-success fw-bold">
-                                    ${{ user.tutorprofile.hourly_rate|floatformat:2 }} × {{ session.duration_hours }} = 
-                                    ${% widthratio user.tutorprofile.hourly_rate 1 session.duration_hours %}
-                                </p>
-                            {% endif %}
-                        </div>
+                        
                     </div>
 
                     {% if session.notes %}

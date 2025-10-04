@@ -74,9 +74,15 @@ class TutoringSession(models.Model):
         return True
 
 class Review(models.Model):
-    session = models.OneToOneField(TutoringSession, on_delete=models.CASCADE)
+    session = models.OneToOneField(TutoringSession, on_delete=models.CASCADE, related_name='review')
     reviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='given_reviews')
     reviewed = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_reviews')
     rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
-    comment = models.TextField()
+    comment = models.TextField(blank=True)  # Change to blank=True so it's optional
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.reviewer.username} reviewed {self.reviewed.username} - {self.rating} stars"

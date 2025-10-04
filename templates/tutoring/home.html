@@ -163,9 +163,6 @@
                         </div>
                         <p class="card-text">{{ tutor.user.bio|truncatewords:15 }}</p>
                         <div class="d-flex justify-content-between align-items-center mt-4">
-                            <div>
-                                <strong class="text-success h5">${{ tutor.hourly_rate }}/hour</strong>
-                            </div>
                             <a href="{% url 'tutor_detail' tutor.id %}" 
                                class="btn btn-primary rounded-pill">
                                 View Profile <i class="fas fa-arrow-right ms-1"></i>

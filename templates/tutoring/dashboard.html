@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
-
 {% block title %}Dashboard - LoopEd{% endblock %}
 {% block content %}
+{% csrf_token %}
 {% if user.user_type == 'tutor' %}
     {% if not user.tutorprofile.is_approved %}
         <div class="container mt-4">

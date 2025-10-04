@@ -1,12 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Avg  # Added Avg
 from django.http import JsonResponse
 from datetime import datetime
 from .models import Subject, TutoringSession, Review
 from accounts.models import User, TutorProfile
-from .forms import TutorSearchForm, BookingForm
+from .forms import TutorSearchForm, BookingForm, ReviewForm  # Added ReviewForm
+from django.utils import timezone
 
 def home(request):
     subjects = Subject.objects.all()[:6]  # Show first 6 subjects
@@ -39,9 +40,25 @@ def tutor_search(request):
 def tutor_detail(request, tutor_id):
     tutor_profile = get_object_or_404(TutorProfile, id=tutor_id)
     reviews = Review.objects.filter(reviewed=tutor_profile.user).order_by('-created_at')[:5]
+    
+    # Check if current user has completed sessions with this tutor
+    can_review = False
+    unreviewed_session = None
+    if request.user.is_authenticated and request.user.user_type == 'student':
+        completed_sessions = TutoringSession.objects.filter(
+            student=request.user,
+            tutor=tutor_profile.user,
+            status='completed'
+        )
+        # Get the first unreviewed session
+        unreviewed_session = completed_sessions.filter(review__isnull=True).first()
+        can_review = unreviewed_session is not None
+    
     return render(request, 'tutoring/tutor_detail.html', {
         'tutor': tutor_profile,
-        'reviews': reviews
+        'reviews': reviews,
+        'can_review': can_review,
+        'unreviewed_session': unreviewed_session,
     })
 
 @login_required
@@ -56,15 +73,20 @@ def book_session(request, tutor_id):
     if request.method == 'POST':
         form = BookingForm(tutor_profile, request.POST)
         if form.is_valid():
+            # Create timezone-aware datetime
+            naive_datetime = datetime.combine(
+                form.cleaned_data['preferred_date'],
+                form.cleaned_data['preferred_time']
+            )
+            # Make it timezone-aware using Django's timezone
+            aware_datetime = timezone.make_aware(naive_datetime)
+            
             # Create the tutoring session
             session = TutoringSession.objects.create(
                 student=request.user,
                 tutor=tutor_profile.user,
                 subject=form.cleaned_data['subject'],
-                date_time=datetime.combine(
-                    form.cleaned_data['preferred_date'],
-                    form.cleaned_data['preferred_time']
-                ),
+                date_time=aware_datetime,  # Use timezone-aware datetime
                 duration_hours=form.cleaned_data['duration_hours'],
                 notes=form.cleaned_data['notes'],
                 status='pending'
@@ -185,13 +207,76 @@ def complete_session(request, session_id):
 @login_required
 def check_completion_status(request, session_id):
     """AJAX endpoint to check if session can be completed"""
+    from django.utils import timezone as django_tz
+    
     session = get_object_or_404(TutoringSession, id=session_id, tutor=request.user)
     
     time_left = session.get_time_until_completion()
+    
+    # Get session end time and convert to local timezone
+    session_end_time = session.get_session_end_time()
+    if session_end_time:
+        # Convert from UTC to local timezone before formatting
+        local_end_time = django_tz.localtime(session_end_time)
+        formatted_time = local_end_time.strftime('%B %d, %Y at %I:%M %p')
+    else:
+        formatted_time = None
     
     return JsonResponse({
         'can_complete': session.can_be_completed(),
         'time_left_seconds': int(time_left.total_seconds()) if time_left else 0,
         'time_left_display': str(time_left).split('.')[0] if time_left else "Session completed",
-        'session_end_time': session.get_session_end_time().strftime('%B %d, %Y at %I:%M %p') if session.get_session_end_time() else None
+        'session_end_time': formatted_time
     })
+
+@login_required
+def submit_review(request, session_id):
+    session = get_object_or_404(TutoringSession, id=session_id)
+    
+    # Only students who completed the session can review
+    if request.user != session.student:
+        messages.error(request, "You can only review your own sessions.")
+        return redirect('dashboard')
+    
+    if session.status != 'completed':
+        messages.error(request, "You can only review completed sessions.")
+        return redirect('dashboard')
+    
+    # Check if review already exists
+    if hasattr(session, 'review'):
+        messages.info(request, "You have already reviewed this session.")
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.session = session
+            review.reviewer = request.user  # Student reviewing
+            review.reviewed = session.tutor  # Tutor being reviewed
+            review.save()
+            
+            # Update tutor's average rating
+            update_tutor_rating(session.tutor.tutorprofile)
+            
+            messages.success(request, 'Thank you for your review!')
+            return redirect('dashboard')
+    else:
+        form = ReviewForm()
+    
+    return render(request, 'tutoring/submit_review.html', {
+        'form': form,
+        'session': session
+    })
+
+def update_tutor_rating(tutor_profile):
+    """Update tutor's average rating and total reviews"""
+    # Get all reviews for this tutor
+    reviews = Review.objects.filter(reviewed=tutor_profile.user)
+    total = reviews.count()
+    
+    if total > 0:
+        avg_rating = reviews.aggregate(Avg('rating'))['rating__avg']
+        tutor_profile.rating = round(avg_rating, 2)
+        tutor_profile.total_reviews = total
+        tutor_profile.save()

@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Review Session - LoopED{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-star"></i> Review Your Session</h3>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info mb-4">
+                        <strong>Session with:</strong> {{ session.tutor.get_full_name }}<br>
+                        <strong>Subject:</strong> {{ session.subject.name }}<br>
+                        <strong>Date:</strong> {{ session.date_time|date:"F d, Y" }} at {{ session.date_time|time:"g:i A" }}
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Star Rating -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">How would you rate this session? <span class="text-danger">*</span></label>
+                            <div class="rating-options">
+                                {% for value, label in form.rating.field.choices %}
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" 
+                                               name="rating" id="rating_{{ value }}" 
+                                               value="{{ value }}" required>
+                                        <label class="form-check-label rating-label" for="rating_{{ value }}">
+                                            <span class="stars">
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= value %}
+                                                        <i class="fas fa-star text-warning"></i>
+                                                    {% else %}
+                                                        <i class="far fa-star text-warning"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </span>
+                                            <span class="ms-2">({{ value }} star{{ value|pluralize }})</span>
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.rating.errors %}
+                                <div class="text-danger small mt-1">{{ form.rating.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Review Comment -->
+                        <div class="mb-4">
+                            <label for="{{ form.comment.id_for_label }}" class="form-label fw-bold">
+                                Tell us about your experience (Optional)
+                            </label>
+                            {{ form.comment }}
+                            {% if form.comment.errors %}
+                                <div class="text-danger small mt-1">{{ form.comment.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane"></i> Submit Review
+                            </button>
+                            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .rating-label {
+        cursor: pointer;
+        padding: 10px;
+        border-radius: 5px;
+        transition: background-color 0.2s;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .rating-label:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .form-check-input:checked ~ .rating-label {
+        background-color: #e9ecef;
+        font-weight: bold;
+    }
+    
+    .stars i {
+        font-size: 1.2rem;
+    }
+</style>
+{% endblock %}

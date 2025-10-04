@@ -1,5 +1,6 @@
 from django import forms
-from .models import Subject, TutoringSession
+from django.utils import timezone
+from .models import Subject, TutoringSession, Review
 from datetime import date, datetime
 
 class TutorSearchForm(forms.Form):
@@ -27,9 +28,9 @@ class TutorSearchForm(forms.Form):
         })
     )
 
-class BookingForm(forms.Form):  # Add this new form
+class BookingForm(forms.Form):
     subject = forms.ModelChoiceField(
-        queryset=Subject.objects.none(),  # Will be set dynamically
+        queryset=Subject.objects.none(),
         required=True,
         widget=forms.Select(attrs={'class': 'form-select'})
     )
@@ -49,7 +50,7 @@ class BookingForm(forms.Form):  # Add this new form
         widget=forms.DateInput(attrs={
             'class': 'form-control',
             'type': 'date',
-            'min': date.today().strftime('%Y-%m-%d')  # Can't book in the past
+            'min': date.today().strftime('%Y-%m-%d')
         })
     )
     preferred_time = forms.TimeField(
@@ -67,23 +68,41 @@ class BookingForm(forms.Form):  # Add this new form
             'placeholder': 'Tell the tutor about your learning goals, specific topics you\'d like to cover, or any other relevant information...'
         })
     )
-    
+
     def __init__(self, tutor, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Set the subject choices to only the tutor's subjects
         self.fields['subject'].queryset = tutor.subjects.all()
-        
+
     def clean(self):
         cleaned_data = super().clean()
         preferred_date = cleaned_data.get('preferred_date')
         preferred_time = cleaned_data.get('preferred_time')
         
         if preferred_date and preferred_time:
-            # Combine date and time
-            session_datetime = datetime.combine(preferred_date, preferred_time)
+            # Create naive datetime
+            naive_datetime = datetime.combine(preferred_date, preferred_time)
+            # Make it timezone-aware
+            session_datetime = timezone.make_aware(naive_datetime)
             
-            # Check if it's in the past
-            if session_datetime < datetime.now():
+            # Compare with current timezone-aware datetime
+            if session_datetime <= timezone.now():
                 raise forms.ValidationError("You cannot book a session in the past.")
-                
+        
         return cleaned_data
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['rating', 'comment']
+        widgets = {
+            'rating': forms.RadioSelect(attrs={'class': 'form-check-input'}),
+            'comment': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Share your experience with this tutor (optional)...'
+            })
+        }
+        labels = {
+            'rating': 'Rating',
+            'comment': 'Your Review'
+        }
